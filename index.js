@@ -5,12 +5,11 @@ const cors = require("cors");
 const db = require("./Connection");
 
 const app = express();
-
+const PORT = process.env.PORT || 3008;
 // ✅ Configure allowed origins dynamically
 const allowedOrigins = [
   "http://localhost:5173", // Local development (Vite)
-  "https://fitnesstracker-beige-gamma.vercel.app/",
-  "https://backendft-production-9ad8.up.railway.app/" // Replace with your actual Vercel domain
+  "https://fitnesstracker-beige-gamma.vercel.app/" // Replace with your actual Vercel domain
 ];
 
 app.use(
@@ -58,8 +57,13 @@ app.use("/api/nutrition", require("./Routes/nutritionRoute"));
 app.use("/api/progress", require("./Routes/progressRoutes"));
 
 // ✅ Start server after DB connection
-db().then(() => {
-  app.listen(PORT, () => {
-    console.log(`✅ Server started at http://localhost:${PORT}`);
+db()
+  .then(() => {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`✅ Server started on PORT=${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error("❌ DB connection failed:", err);
+    process.exit(1);
   });
-});
