@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
+const MongoStore = require("connect-mongo"); // ✅ MongoDB session store
 const db = require("./Connection");
 
 const PORT = process.env.PORT || 3008;
@@ -9,9 +10,10 @@ const app = express();
 
 // ✅ Allowed origins
 const allowedOrigins = [
-  "http://localhost:5173", // Local development (Vite)
+  "http://localhost:5173", 
   "https://fitnesstracker-beige-gamma.vercel.app",
-  "https://backendft-production-9ad8.up.railway.app", // optional if needed
+  "https://backendft-production-9ad8.up.railway.app",
+
 ];
 
 // ✅ CORS middleware
@@ -27,15 +29,19 @@ app.use(
 // ✅ JSON parser
 app.use(express.json());
 
-// ✅ Session configuration
+// ✅ Session configuration using MongoStore
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "default_secret_key",
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.URL, // 🔑 Your MongoDB URL from Railway
+      collectionName: "sessions", 
+    }),
     cookie: {
       path: "/",
-      secure: process.env.NODE_ENV === "production", // HTTPS on Railway
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24, // 1 day
