@@ -11,7 +11,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", // Local development (Vite)
   "https://fitnesstracker-beige-gamma.vercel.app",
-  "https://backendft-production-9ad8.up.railway.app"
+
 ];
 
 app.use(
@@ -41,10 +41,10 @@ app.use(
     saveUninitialized: false,
     cookie: {
       path: "/",
-      secure: true,         // always secure (Railway uses HTTPS)
+      secure: process.env.NODE_ENV === "production", // 🚀 only true on Railway
       httpOnly: true,
-      sameSite: "none",     // allow cross-site cookies
-      maxAge: 1000 * 60 * 60 * 24,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // 🚀 none for cross-site, lax for localhost
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
   })
 );
@@ -60,7 +60,7 @@ app.use("/api/progress", require("./Routes/progressRoutes"));
 
 // ✅ Start server after DB connection
 db().then(() => {
-  app.listen(PORT, () => {
-    console.log(`✅ Server started at http://localhost:${PORT}`);
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`✅ Server started on PORT=${PORT}`);
   });
 });
