@@ -2,55 +2,60 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
+const MongoStore = require("connect-mongo");  // ✅ for session storage in Mongo
 const db = require("./Connection");
-const PORT = process.env.PORT || 3008;
 
+const PORT = process.env.PORT || 3008;
 const app = express();
 
-// ✅ Configure allowed origins dynamically
+// ✅ Allowed origins
 const allowedOrigins = [
-  "http://localhost:5173", // Local development (Vite)
-  "https://fitnesstracker-beige-gamma.vercel.app",
-  "https://backendft-production-9ad8.up.railway.app"
-
+  "http://localhost:5173", 
+  "https://fitnesstracker-beige-gamma.vercel.app"
 ];
 
+// ✅ CORS middleware
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or Postman)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: allowedOrigins,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// ✅ Express JSON parser
+// ✅ Handle OPTIONS preflight globally
+app.options("*", cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
+// ✅ JSON parser
 app.use(express.json());
 
-// ✅ Session configuration
+// ✅ Session config with MongoStore
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "default_secret_key",
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.URL, // 🔑 your Railway MongoDB URL
+      collectionName: "sessions",
+    }),
     cookie: {
       path: "/",
-      secure: process.env.NODE_ENV === "production", // 🚀 only true on Railway
+      secure: process.env.NODE_ENV === "production", // true on Railway
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // 🚀 none for cross-site, lax for localhost
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
   })
 );
 
-// ✅ Mount routes
+// ✅ Routes
 app.use("/api/auth", require("./Routes/route"));
 app.use("/api/auth", require("./Routes/fpRoutes"));
 app.use("/api/workouts", require("./Routes/workoutRoutes"));
