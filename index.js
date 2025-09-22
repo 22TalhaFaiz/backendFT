@@ -21,6 +21,7 @@ app.use(cors({
     "https://backendft-production-9ad8.up.railway.app"
   ],
   credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Middleware
