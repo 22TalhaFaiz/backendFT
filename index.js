@@ -3,6 +3,7 @@ const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
 const db = require("./Connection");
+const PORT = process.env.PORT || 3008;
 
 const app = express();
 
