@@ -5,50 +5,36 @@ const cors = require("cors");
 const db = require("./Connection");
 
 const app = express();
-const PORT = process.env.PORT || 3008;
-// ✅ Configure allowed origins dynamically
-const allowedOrigins = [
-  "http://localhost:5173", // Local development (Vite)
-  "https://fitnesstracker-beige-gamma.vercel.app/" // Replace with your actual Vercel domain
-];
+const PORT = process.env.PORT || 3000; // 🔧 Define PORT variable
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or Postman)
-      if (!origin) return callback(null, true);
+// ✅ Fixed CORS configuration
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://fitnesstracker-beige-gamma.vercel.app",
+    "https://backendft-production-9ad8.up.railway.app"
+  ], // 🔧 Use array format for multiple origins
+  credentials: true,
+}));
 
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-
-// ✅ Express JSON parser
+// Middleware
 app.use(express.json());
 
-// ✅ Session configuration
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "default_secret_key",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      path: "/",
-      secure: process.env.NODE_ENV === "production", // HTTPS only in production
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-    },
-  })
-);
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    path: "/",
+    secure: process.env.NODE_ENV === "production", // 🔧 Dynamic secure setting
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 1000 * 60 * 60 * 24, // 24 hours
+  }
+}));
 
-// ✅ Mount routes
-app.use("/api/auth", require("./Routes/route"));
+// Routes
+app.use("/api/auth", require("./Routes/route")); 
 app.use("/api/auth", require("./Routes/fpRoutes"));
 app.use("/api/workouts", require("./Routes/workoutRoutes"));
 app.use("/api/analytics", require("./Routes/analyticsRoutes"));
@@ -56,7 +42,12 @@ app.use("/api/profile", require("./Routes/profileRoute"));
 app.use("/api/nutrition", require("./Routes/nutritionRoute"));
 app.use("/api/progress", require("./Routes/progressRoutes"));
 
-// ✅ Start server after DB connection
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.json({ message: "Fitness Tracker API is running!" });
+});
+
+// Start server after DB connection
 db()
   .then(() => {
     app.listen(PORT, "0.0.0.0", () => {
