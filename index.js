@@ -9,7 +9,7 @@ const app = express();
 // ✅ Configure allowed origins dynamically
 const allowedOrigins = [
   "http://localhost:5173", // Local development (Vite)
-  "https://frontend-ft.vercel.app/" // Replace with your actual Vercel domain
+  "https://fitnesstracker-beige-gamma.vercel.app/" // Replace with your actual Vercel domain
 ];
 
 app.use(
