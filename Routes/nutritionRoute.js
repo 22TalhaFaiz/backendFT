@@ -1,15 +1,15 @@
 const express = require("express");
 const { addNutritionData } = require("../Controller/NutritionController");
 const Nutrition = require("../Collection/Nutrition"); // ✅ Import your model
-const isAuthenticated = require("../Middleware/authMiddleware"); // ✅ Import auth middleware
+const {verifyToken} = require("../Middleware/authMiddleware"); // ✅ Import auth middleware
 
 const router = express.Router();
 
 // ✅ Add new nutrition data
-router.post("/", isAuthenticated, addNutritionData);
+router.post("/", verifyToken, addNutritionData);
 
 // ✅ Fetch nutrition entries only for the logged-in user
-router.get("/g", isAuthenticated, async (req, res) => {
+router.get("/g", verifyToken, async (req, res) => {
   try {
     const entries = await Nutrition.find({ user: req.session.user.id }).sort({ createdAt: -1 });
     res.json(entries);

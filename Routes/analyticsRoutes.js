@@ -1,10 +1,10 @@
 const express = require('express');
-const isAuthenticated = require('../Middleware/authMiddleware');
+const {verifyToken} = require('../Middleware/authMiddleware');
 const { getWorkoutFrequency , getNutritionFrequency } = require('../Controller/AnalyticsController');
 
 const router = express.Router();
 
-router.get('/frequency', isAuthenticated , getWorkoutFrequency)
-router.get('/frequency', isAuthenticated , getNutritionFrequency)
+router.get('/frequency', verifyToken, getWorkoutFrequency)
+router.get('/frequency', verifyToken , getNutritionFrequency)
 
 module.exports = router;

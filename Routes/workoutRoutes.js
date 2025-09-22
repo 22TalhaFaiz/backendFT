@@ -1,11 +1,11 @@
 const express = require("express");
 const { createWorkout, getWorkouts , deleteWorkout } = require("../Controller/WorkoutController");
-const isAuthenticated = require("../Middleware/authMiddleware");
+const { verifyToken } = require("../Middleware/authMiddleware"); // JWT middleware
 
 const router = express.Router();
 
-router.post("/c", isAuthenticated, createWorkout);
-router.get("/", isAuthenticated, getWorkouts);
-router.delete("/:id", isAuthenticated, deleteWorkout);
+router.post("/c", verifyToken, createWorkout);
+router.get("/", verifyToken, getWorkouts);
+router.delete("/:id", verifyToken, deleteWorkout);
 
 module.exports = router;
