@@ -11,7 +11,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", // Local development (Vite)
   "https://fitnesstracker-beige-gamma.vercel.app",
-  "https://backendft-production-9ad8.up.railway.app" 
+  "https://backendft-production-9ad8.up.railway.app"
 ];
 
 app.use(
@@ -41,10 +41,10 @@ app.use(
     saveUninitialized: false,
     cookie: {
       path: "/",
-      secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      secure: true,         // always secure (Railway uses HTTPS)
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      sameSite: "none",     // allow cross-site cookies
+      maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
