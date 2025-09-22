@@ -2,46 +2,45 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
-const MongoStore = require("connect-mongo"); // ✅ MongoDB session store
 const db = require("./Connection");
 
-const PORT = process.env.PORT || 3008;
 const app = express();
 
-// ✅ Allowed origins
+// ✅ Configure allowed origins dynamically
 const allowedOrigins = [
-  "http://localhost:5173", 
-  "https://fitnesstracker-beige-gamma.vercel.app",
-  "https://backendft-production-9ad8.up.railway.app",
-
+  "http://localhost:5173", // Local development (Vite)
+  "https://fitnesstracker-beige-gamma.vercel.app/",
+  "https://backendft-production-9ad8.up.railway.app/" // Replace with your actual Vercel domain
 ];
 
-// ✅ CORS middleware
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// ✅ JSON parser
+// ✅ Express JSON parser
 app.use(express.json());
 
-// ✅ Session configuration using MongoStore
+// ✅ Session configuration
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "default_secret_key",
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.URL, // 🔑 Your MongoDB URL from Railway
-      collectionName: "sessions", 
-    }),
     cookie: {
       path: "/",
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production", // HTTPS only in production
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24, // 1 day
@@ -60,7 +59,7 @@ app.use("/api/progress", require("./Routes/progressRoutes"));
 
 // ✅ Start server after DB connection
 db().then(() => {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`✅ Server started on PORT=${PORT}`);
+  app.listen(PORT, () => {
+    console.log(`✅ Server started at http://localhost:${PORT}`);
   });
 });
