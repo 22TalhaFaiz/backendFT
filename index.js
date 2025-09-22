@@ -28,19 +28,6 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Session configuration
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'fallback-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    sameSite:  process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 1000 * 60 * 60 * 24, // 24 hours
-  }
-}));
 
 // Health check endpoint (important for deployment platforms)
 app.get("/", (req, res) => {
