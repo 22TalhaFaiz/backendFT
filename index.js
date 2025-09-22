@@ -9,7 +9,8 @@ const app = express();
 // ✅ Configure allowed origins dynamically
 const allowedOrigins = [
   "http://localhost:5173", // Local development (Vite)
-  "https://fitnesstracker-beige-gamma.vercel.app/" // Replace with your actual Vercel domain
+  "https://fitnesstracker-beige-gamma.vercel.app/",
+  "https://backendft-production-9ad8.up.railway.app/" 
 ];
 
 app.use(
@@ -58,7 +59,7 @@ app.use("/api/progress", require("./Routes/progressRoutes"));
 
 // ✅ Start server after DB connection
 db().then(() => {
-  app.listen(process.env.PORT, () => {
-    console.log(`✅ Server started at http://localhost:${process.env.PORT}`);
+  app.listen(PORT, () => {
+    console.log(`✅ Server started at http://localhost:${PORT}`);
   });
 });
