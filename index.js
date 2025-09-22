@@ -11,6 +11,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", // Local development (Vite)
   "https://fitnesstracker-beige-gamma.vercel.app",
+  "https://backendft-production-9ad8.up.railway.app"
 
 ];
 
