@@ -31,7 +31,7 @@ const Crud = {
       // ✅ Create JWT token
       const token = jwt.sign(
         { id: user._id, name: user.name, email: user.email },
-        process.env.SESSION_SECRET,
+        process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
       );
 
